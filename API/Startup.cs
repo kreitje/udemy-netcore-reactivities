@@ -2,6 +2,7 @@ using System.Text;
 using API.Middleware;
 using Application.Activities;
 using Application.Interfaces;
+using AutoMapper;
 using Domain;
 using FluentValidation.AspNetCore;
 using Infrastructure.Security;
@@ -35,6 +36,7 @@ namespace API
         {
             services.AddDbContext<Persistence.DataContext>(opt =>
             {
+                opt.UseLazyLoadingProxies();
                 opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
             });
             services.AddCors(opts => 
@@ -42,8 +44,9 @@ namespace API
                     policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
                 })
             );
-
+            
             services.AddMediatR(typeof(List.Handler).Assembly);
+            services.AddAutoMapper(typeof(List.Handler));
             services.AddControllers(opt =>
                 {
                     var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
